@@ -113,15 +113,15 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <Phone size={11} /> +91 422 666 7777
+              <Phone size={11} /> +91-422-2345678
             </span>
             <span className="hidden sm:flex items-center gap-1.5">
-              <Mail size={11} /> admissions@rathinam.in
+              <Mail size={11} /> info@rathinam.in
             </span>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5">
-              <MapPin size={11} /> Coimbatore, Tamil Nadu
+              <MapPin size={11} /> Eachanari, Coimbatore - 641021
             </span>
           </div>
         </div>
@@ -144,11 +144,11 @@ export function Layout({ children }: LayoutProps) {
                 />
               </div>
               <div>
-                <span className="block font-display text-lg font-bold text-primary-foreground leading-tight">
-                  RATHINAM
+                <span className="block font-display text-base font-bold text-primary-foreground leading-tight">
+                  Rathinam Group of Institutions
                 </span>
-                <span className="block text-[10px] text-secondary font-semibold tracking-widest uppercase leading-tight">
-                  College
+                <span className="block text-[10px] text-secondary font-semibold tracking-wide uppercase leading-tight">
+                  Eachanari, Coimbatore
                 </span>
               </div>
             </Link>
@@ -233,17 +233,18 @@ export function Layout({ children }: LayoutProps) {
                   />
                 </div>
                 <div>
-                  <span className="block font-display text-lg font-bold leading-tight">
-                    RATHINAM
+                  <span className="block font-display text-base font-bold leading-tight">
+                    Rathinam Group of Institutions
                   </span>
-                  <span className="block text-[10px] text-secondary font-semibold tracking-widest uppercase">
-                    College
+                  <span className="block text-[10px] text-secondary font-semibold tracking-wide uppercase">
+                    Eachanari, Coimbatore
                   </span>
                 </div>
               </div>
               <p className="text-primary-foreground/70 text-sm leading-relaxed mb-4">
                 Igniting careers and shaping tomorrow's leaders since 1994.
-                Approved by AICTE, affiliated with Anna University.
+                Rathinam Group of Institutions, Eachanari, Coimbatore — Approved
+                by AICTE, affiliated with Anna University.
               </p>
               <div className="flex items-center gap-3">
                 {[
@@ -331,16 +332,16 @@ export function Layout({ children }: LayoutProps) {
                   />
                   <span>
                     Rathinam Techzone, Pollachi Main Road, Eachanari, Coimbatore
-                    – 641 021, Tamil Nadu
+                    - 641021, Tamil Nadu
                   </span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Phone size={14} className="text-secondary shrink-0" />
-                  <span>+91 422 666 7777</span>
+                  <span>+91-422-2345678</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <Mail size={14} className="text-secondary shrink-0" />
-                  <span>admissions@rathinam.in</span>
+                  <span>info@rathinam.in</span>
                 </li>
               </ul>
               <div className="mt-4 p-3 bg-secondary/20 rounded-lg border border-secondary/30">
@@ -356,8 +357,9 @@ export function Layout({ children }: LayoutProps) {
 
           <div className="border-t border-primary-foreground/20 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-primary-foreground/50">
-              © {new Date().getFullYear()} Rathinam College, Coimbatore. All
-              rights reserved. | AICTE Approved | Anna University Affiliated
+              © {new Date().getFullYear()} Rathinam Group of Institutions,
+              Eachanari, Coimbatore. All rights reserved. | AICTE Approved |
+              Anna University Affiliated
             </p>
             <p className="text-xs text-primary-foreground/50">
               Built with love using{" "}

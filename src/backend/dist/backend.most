@@ -1,10 +1,4 @@
 // Version: 3.0.0
-type CompletionEvent__1060602876 =
-  {
-    completedAt : Timestamp__817121181;
-    taskId : TaskId__1072255398;
-    timeSpentEstimateMins : ?Nat
-  };
 type ContactInquiry__762096662 =
   {
     courseInterest : Text;
@@ -26,24 +20,8 @@ type CourseInquiry__673118631 =
     timestamp : Timestamp__301639476
   };
 type InquiryId__340326671 = Nat;
-type MapData__164499685<K, V> = {var count : Nat; kvs : [var ?(K, V)]};
-type MapInternal__457411622<K, V> =
-  {
-    children : [var ?MapNode__557379827<K, V>];
-    data : MapData__164499685<K, V>
-  };
-type MapLeaf__197441129<K, V> = {data : MapData__164499685<K, V>};
-type MapNode__557379827<K, V> =
-  {
-    #internal : MapInternal__457411622<K, V>;
-    #leaf : MapLeaf__197441129<K, V>
-  };
 type Nat__490723111 = Nat__920180692;
 type Nat__920180692 = Nat;
-type OldList__955980737<T> =
-  {var blockIndex : Nat; var blocks : [var [var ?T]]; var elementIndex : Nat};
-type OldMap__30246564<K, V> =
-  {var root : MapNode__557379827<K, V>; var size : Nat};
 type PlacementRecord__548394671 =
   {
     avgLPA : Float;
@@ -54,35 +32,8 @@ type PlacementRecord__548394671 =
     topCompanies : [Text];
     year : Nat
   };
-type TaskId__1072255398 = Nat;
-type TaskStatus__1033709605 = {#completed; #pending};
-type Task__866119451 =
-  {
-    createdAt : Timestamp__817121181;
-    var deadline : ?Timestamp__817121181;
-    var description : Text;
-    var estimatedCompletionMins : ?Nat;
-    id : TaskId__1072255398;
-    owner : UserId__2049225;
-    var priorityScore : ?Nat;
-    var status : TaskStatus__1033709605;
-    var suggestedCategory : ?Text;
-    var title : Text;
-    var updatedAt : Timestamp__817121181
-  };
 type Timestamp__301639476 = Int;
-type Timestamp__817121181 = Int;
-type UserId__2049225 = Principal;
-type User__177735871 =
-  {
-    createdAt : Timestamp__817121181;
-    var displayName : Text;
-    id : UserId__2049225
-  };
 actor ({
-  in var aiApiKey : Text;
-  in var aiApiUrl : Text;
-  in completionEvents : OldList__955980737<CompletionEvent__1060602876>;
   stable contactInquiries :
     {
       var blockIndex : Nat__490723111;
@@ -100,9 +51,7 @@ actor ({
       var blockIndex : Nat__490723111;
       var blocks : [var [var ?PlacementRecord__548394671]];
       var elementIndex : Nat__490723111
-    };
-  in tasks : OldMap__30246564<TaskId__1072255398, Task__866119451>;
-  in users : OldMap__30246564<UserId__2049225, User__177735871>
+    }
 }, {
   stable contactInquiries :
     {

@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useRef } from "react";
 import { Badge } from "../components/CollegeBadge";
 import { Section } from "../components/Section";
 
@@ -21,50 +22,58 @@ const TIMELINE = [
   {
     year: "1994",
     event:
-      "Rathinam College founded in Coimbatore, Tamil Nadu by the Rathinam Group with a vision to provide world-class education.",
+      "Rathinam Group of Institutions founded at Eachanari, Coimbatore with a vision to provide world-class education.",
     color: "bg-primary",
+    icon: "🎓",
   },
   {
     year: "1998",
     event:
       "First batch of graduates placed with outstanding results. Campus expansion begins to accommodate growing student strength.",
     color: "bg-secondary",
+    icon: "🏆",
   },
   {
     year: "2003",
     event:
-      "Granted Autonomous Status by Anna University — a milestone enabling the college to frame its own syllabus aligned with industry needs.",
+      "Granted Autonomous Status by Anna University — enabling the institution to frame its own industry-aligned syllabus.",
     color: "bg-accent",
+    icon: "📜",
   },
   {
     year: "2008",
     event:
-      "Achieved ISO 9001:2015 Certification for quality management. International MOU signed with UWE Bristol, UK.",
+      "ISO 9001:2015 Certification for quality management. International MOU signed with UWE Bristol, UK.",
     color: "bg-primary",
+    icon: "🌍",
   },
   {
     year: "2014",
     event:
       "NAAC awarded prestigious 'A' Grade after rigorous peer review. NBA Accreditation secured for Engineering programs.",
     color: "bg-secondary",
+    icon: "⭐",
   },
   {
     year: "2018",
     event:
       "Upgraded to NAAC 'A+' Grade — highest distinction. Smart Campus initiative launched with IoT-enabled infrastructure.",
     color: "bg-accent",
+    icon: "💡",
   },
   {
     year: "2020",
     event:
       "Smart Campus transformation completed. Over 10,000 students enrolled; hybrid learning infrastructure deployed.",
     color: "bg-primary",
+    icon: "🖥️",
   },
   {
     year: "2024",
     event:
-      "50+ Global Partnerships across 18 countries. Highest placement package at 42 LPA. 15,000+ students across UG, PG, MBA, MCA programs.",
+      "NAAC A++ Accreditation and 30 Years of Excellence. Highest placement package at 42 LPA. 15,000+ students across UG, PG, MBA, MCA programs.",
     color: "bg-secondary",
+    icon: "🚀",
   },
 ];
 
@@ -113,8 +122,8 @@ const LEADERSHIP = [
 
 const ACCREDITATIONS = [
   {
-    name: "NAAC A+",
-    sub: "Highest Grade",
+    name: "NAAC A++",
+    sub: "2024 Highest Grade",
     color: "border-primary bg-primary/5 text-primary",
   },
   {
@@ -210,6 +219,102 @@ const VALUES = [
   },
 ];
 
+const MISSION_ICONS = [
+  { emoji: "🎓", label: "Education", delay: 0, pos: "top-4 left-6" },
+  { emoji: "🔬", label: "Research", delay: 0.4, pos: "top-2 right-10" },
+  { emoji: "💡", label: "Innovation", delay: 0.8, pos: "bottom-6 left-12" },
+  { emoji: "🌍", label: "Global", delay: 0.2, pos: "bottom-4 right-6" },
+  { emoji: "🏆", label: "Excellence", delay: 0.6, pos: "top-1/2 left-2" },
+  { emoji: "🤝", label: "Collaboration", delay: 1.0, pos: "top-1/2 right-2" },
+];
+
+// CSS 3D timeline card component
+function TimelineCard({
+  item,
+  index,
+}: {
+  item: (typeof TIMELINE)[number];
+  index: number;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    el.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03,1.03,1.03)`;
+  }
+
+  function handleMouseLeave() {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.transform =
+      "perspective(600px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)";
+  }
+
+  const isEven = index % 2 === 0;
+
+  return (
+    <motion.div
+      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 20 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.08 }}
+      data-ocid={`about.timeline.item.${index + 1}`}
+      className={`md:flex md:items-center md:gap-0 ${isEven ? "md:flex-row" : "md:flex-row-reverse"} mb-8`}
+    >
+      {/* Content side */}
+      <div
+        className={`flex-1 md:px-8 ${isEven ? "md:text-right" : "md:text-left"}`}
+      >
+        <div
+          ref={cardRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            transition: "transform 0.15s ease-out",
+            transformStyle: "preserve-3d",
+          }}
+          className="bg-card border border-border rounded-2xl p-5 shadow-card hover:shadow-elevated cursor-default"
+        >
+          {/* 3D depth layer */}
+          <div
+            style={{ transform: "translateZ(20px)" }}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-2 text-primary-foreground ${item.color}`}
+          >
+            <span>{item.icon}</span>
+            {item.year}
+          </div>
+          <p
+            style={{ transform: "translateZ(10px)" }}
+            className="text-foreground text-sm leading-relaxed"
+          >
+            {item.event}
+          </p>
+        </div>
+      </div>
+
+      {/* Center dot */}
+      <div
+        className={`hidden md:flex w-12 h-12 rounded-full ${item.color} flex-shrink-0 items-center justify-center z-10 shadow-elevated`}
+      >
+        <span className="text-primary-foreground font-bold text-xs">
+          {item.year.slice(2)}
+        </span>
+      </div>
+
+      {/* Empty side */}
+      <div className="flex-1 hidden md:block" />
+    </motion.div>
+  );
+}
+
 export default function AboutPage() {
   return (
     <div data-ocid="about.page">
@@ -221,7 +326,7 @@ export default function AboutPage() {
         <div className="relative h-72 md:h-80">
           <img
             src="https://picsum.photos/seed/rathinam-about/1400/400"
-            alt="Rathinam College Banner"
+            alt="Rathinam Group of Institutions Banner"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/30" />
@@ -233,13 +338,13 @@ export default function AboutPage() {
                 transition={{ duration: 0.6 }}
               >
                 <Badge variant="secondary" className="mb-3">
-                  Est. 1994 · Coimbatore, Tamil Nadu
+                  Est. 1994 · Eachanari, Coimbatore
                 </Badge>
                 <h1 className="font-display text-3xl md:text-5xl font-bold text-primary-foreground mb-2">
-                  About Rathinam College
+                  About Rathinam Group of Institutions
                 </h1>
                 <p className="text-primary-foreground/80 text-base md:text-lg max-w-2xl">
-                  NAAC A+ Accredited Institution of Excellence · 30 Years of
+                  NAAC A++ Accredited Institution of Excellence · 30 Years of
                   Shaping Leaders
                 </p>
               </motion.div>
@@ -291,19 +396,19 @@ export default function AboutPage() {
               <span className="text-gradient-orange">Academic Excellence</span>
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              Founded in <strong className="text-foreground">1994</strong> in
-              the heart of Coimbatore, Tamil Nadu, Rathinam College has grown
-              from a single engineering college into one of Tamil Nadu's premier
-              multi-disciplinary institutions. Today, we proudly serve over{" "}
+              Founded in <strong className="text-foreground">1994</strong> at
+              Eachanari, Coimbatore, Tamil Nadu, Rathinam Group of Institutions
+              has grown from a single engineering college into one of Tamil
+              Nadu's premier multi-disciplinary institutions. Today, we proudly
+              serve over{" "}
               <strong className="text-foreground">15,000+ students</strong>{" "}
               across UG, PG, MBA, and MCA programs.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-6">
               Accredited with{" "}
-              <strong className="text-foreground">NAAC A+</strong> — the highest
-              grade — and ranked among India's top 100 institutions by NIRF,
-              Rathinam stands as a testament to what visionary education looks
-              like. Our 500+ faculty members, 100+ student clubs, and 50+
+              <strong className="text-foreground">NAAC A++</strong> — the
+              highest grade — and ranked among India's top 100 institutions by
+              NIRF. Our 500+ faculty members, 100+ student clubs, and 50+
               international partnerships create an ecosystem where talent
               flourishes.
             </p>
@@ -358,7 +463,7 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      {/* Mission & Vision */}
+      {/* Mission & Vision — with 3D floating academic icons */}
       <section className="section-alt py-20" data-ocid="about.mission.section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -369,6 +474,34 @@ export default function AboutPage() {
               Mission & Vision
             </h2>
           </div>
+
+          {/* Floating academic icons strip */}
+          <div
+            className="relative h-16 mb-8 overflow-hidden pointer-events-none"
+            aria-hidden="true"
+          >
+            {MISSION_ICONS.map((icon) => (
+              <motion.div
+                key={icon.label}
+                className={`absolute ${icon.pos} text-2xl select-none`}
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [-4, 4, -4],
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 3 + icon.delay,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                  delay: icon.delay,
+                }}
+                style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}
+              >
+                {icon.emoji}
+              </motion.div>
+            ))}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <motion.div
               whileInView={{ opacity: 1, y: 0 }}
@@ -451,10 +584,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* History Timeline */}
+      {/* History Timeline — CSS 3D perspective cards */}
       <Section
         title="College History"
-        subtitle="Three decades of milestones that define Rathinam's journey of excellence"
+        subtitle="Three decades of milestones — Rathinam Group of Institutions, Eachanari, Coimbatore"
         data-ocid="about.history.section"
       >
         <div className="relative">
@@ -463,44 +596,7 @@ export default function AboutPage() {
 
           <div className="space-y-6 md:space-y-0">
             {TIMELINE.map((item, i) => (
-              <motion.div
-                key={item.year}
-                whileInView={{ opacity: 1, y: 0 }}
-                initial={{ opacity: 0, y: 20 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                data-ocid={`about.timeline.item.${i + 1}`}
-                className={`md:flex md:items-center md:gap-0 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} mb-8`}
-              >
-                {/* Content side */}
-                <div
-                  className={`flex-1 md:px-8 ${i % 2 === 0 ? "md:text-right" : "md:text-left"}`}
-                >
-                  <div className="bg-card border border-border rounded-2xl p-5 shadow-card hover:shadow-elevated transition-smooth">
-                    <div
-                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-2 text-primary-foreground ${item.color}`}
-                    >
-                      <Calendar2 size={11} />
-                      {item.year}
-                    </div>
-                    <p className="text-foreground text-sm leading-relaxed">
-                      {item.event}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Center dot */}
-                <div
-                  className={`hidden md:flex w-12 h-12 rounded-full ${item.color} flex-shrink-0 items-center justify-center z-10 shadow-elevated`}
-                >
-                  <span className="text-primary-foreground font-bold text-xs">
-                    {item.year.slice(2)}
-                  </span>
-                </div>
-
-                {/* Empty side */}
-                <div className="flex-1 hidden md:block" />
-              </motion.div>
+              <TimelineCard key={item.year} item={item} index={i} />
             ))}
           </div>
         </div>
@@ -576,7 +672,7 @@ export default function AboutPage() {
       {/* Values */}
       <Section
         title="Our Core Values"
-        subtitle="The principles that guide everything we do at Rathinam College"
+        subtitle="The principles that guide everything we do at Rathinam Group of Institutions"
         centered
         data-ocid="about.values.section"
       >
@@ -648,7 +744,7 @@ export default function AboutPage() {
           {/* Community Stats */}
           <div className="bg-card border border-border rounded-2xl shadow-elevated p-8">
             <h3 className="font-display text-xl font-bold text-center text-foreground mb-8">
-              Rathinam Community at a Glance
+              Rathinam Group of Institutions — Community at a Glance
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {COMMUNITY_STATS.map((s, i) => (
@@ -697,9 +793,9 @@ export default function AboutPage() {
               Be Part of the Rathinam Legacy
             </h2>
             <p className="text-primary-foreground/80 text-lg mb-8 max-w-2xl mx-auto">
-              Join 15,000+ students who are building their future at one of
-              Tamil Nadu's finest institutions. Download our brochure or apply
-              today for the 2025-26 academic year.
+              Join 15,000+ students who are building their future at Rathinam
+              Group of Institutions, Eachanari, Coimbatore — Tamil Nadu's finest
+              institution. Download our brochure or apply today.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <a
@@ -724,29 +820,5 @@ export default function AboutPage() {
         </div>
       </section>
     </div>
-  );
-}
-
-// Inline micro-component used only here
-function Calendar2({ size }: { size: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      role="img"
-    >
-      <title>Calendar</title>
-      <rect x="3" y="4" width="18" height="18" rx="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
   );
 }

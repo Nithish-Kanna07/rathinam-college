@@ -289,9 +289,10 @@ export default function CoursesPage() {
                 </span>
               </h1>
               <p className="text-primary-foreground/80 text-lg mb-8 leading-relaxed">
-                Choose from 16 undergraduate and postgraduate programs across
-                Engineering, Science, Arts, and Management. Every program is
-                AICTE-approved, industry-aligned, and placement-focused.
+                Choose from 16 undergraduate and postgraduate programs at
+                Rathinam Group of Institutions, Eachanari, Coimbatore. Every
+                program is AICTE-approved, industry-aligned, and
+                placement-focused.
               </p>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2 bg-primary-foreground/10 rounded-xl px-4 py-2">
@@ -323,7 +324,7 @@ export default function CoursesPage() {
               {[
                 {
                   src: "https://picsum.photos/seed/hero-cse/400/280",
-                  alt: "CSE Students",
+                  alt: "CSE Students at Rathinam",
                 },
                 {
                   src: "https://picsum.photos/seed/hero-lab/400/280",
@@ -390,6 +391,7 @@ export default function CoursesPage() {
         subtitle={`Showing ${filtered.length} program${filtered.length !== 1 ? "s" : ""} — click any card to explore full curriculum, faculty, and placement stats.`}
         data-ocid="courses.grid.section"
       >
+        {/* AnimatePresence with mode='wait' + unique key per filter gives clean transitions */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeFilter}
@@ -504,8 +506,8 @@ export default function CoursesPage() {
             Ready to Begin Your Journey?
           </h2>
           <p className="text-primary-foreground/80 mb-8 text-lg">
-            Applications are open for the 2025–26 academic year. Secure your
-            seat today.
+            Applications are open at Rathinam Group of Institutions, Eachanari,
+            Coimbatore for the 2025–26 academic year. Secure your seat today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

@@ -1,3 +1,4 @@
+import { Canvas, useFrame } from "@react-three/fiber";
 import {
   CheckCircle2,
   Clock,
@@ -12,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   FaFacebookF,
   FaInstagram,
@@ -20,6 +21,7 @@ import {
   FaTwitter,
   FaYoutube,
 } from "react-icons/fa";
+import type * as THREE from "three";
 import { Badge } from "../components/CollegeBadge";
 import { Section } from "../components/Section";
 import { useSubmitContactInquiry } from "../hooks/useBackend";
@@ -143,6 +145,53 @@ function validateForm(f: FormState): FormErrors {
   return e;
 }
 
+// ── 3D Location Pin ───────────────────────────────────────────────────────────
+function LocationPinMesh() {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((_state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.5;
+      // gentle bob
+      groupRef.current.position.y =
+        Math.sin(_state.clock.elapsedTime * 1.2) * 0.12;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Pin sphere top */}
+      <mesh position={[0, 0.6, 0]}>
+        <sphereGeometry args={[0.52, 24, 24]} />
+        <meshStandardMaterial
+          color="#ef4444"
+          emissive="#dc2626"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      {/* Inner dot */}
+      <mesh position={[0, 0.6, 0]}>
+        <sphereGeometry args={[0.22, 16, 16]} />
+        <meshStandardMaterial
+          color="#fff"
+          emissive="#fff"
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+      {/* Pin stem */}
+      <mesh position={[0, -0.22, 0]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[0.18, 1.2, 16]} />
+        <meshStandardMaterial color="#b91c1c" />
+      </mesh>
+      {/* Shadow disc */}
+      <mesh position={[0, -0.88, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.32, 24]} />
+        <meshBasicMaterial color="#000" transparent opacity={0.18} />
+      </mesh>
+    </group>
+  );
+}
+
 export default function ContactPage() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -235,8 +284,8 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="text-primary-foreground/80 mt-2 text-base md:text-lg max-w-xl">
-              Reach out for admissions, placements, or any enquiry — we respond
-              within 24 hours.
+              Rathinam Group of Institutions, Eachanari, Coimbatore — reach out
+              and we respond within 24 hours.
             </p>
           </div>
         </div>
@@ -245,7 +294,7 @@ export default function ContactPage() {
       {/* ── Contact Details + Form ── */}
       <Section className="bg-background">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-          {/* Left: details + social */}
+          {/* Left: details + 3D pin + social */}
           <motion.div
             className="lg:col-span-2 space-y-5"
             data-ocid="contact.details_panel"
@@ -264,6 +313,17 @@ export default function ContactPage() {
               </p>
             </div>
 
+            {/* 3D location pin decoration */}
+            <div className="flex justify-center" aria-hidden="true">
+              <div style={{ width: 120, height: 130 }}>
+                <Canvas camera={{ position: [0, 0, 3.2], fov: 42 }}>
+                  <ambientLight intensity={0.8} />
+                  <directionalLight position={[3, 5, 3]} intensity={1.2} />
+                  <LocationPinMesh />
+                </Canvas>
+              </div>
+            </div>
+
             {[
               {
                 Icon: MapPin,
@@ -272,9 +332,9 @@ export default function ContactPage() {
                 label: "Address",
                 content: (
                   <p className="text-muted-foreground text-sm mt-0.5">
-                    Rathinam College of Arts &amp; Science
+                    Rathinam Group of Institutions
                     <br />
-                    Eachanari, Coimbatore – 641 021
+                    Eachanari, Coimbatore – 641021
                     <br />
                     Tamil Nadu, India
                   </p>
@@ -287,11 +347,11 @@ export default function ContactPage() {
                 label: "Phone",
                 content: (
                   <a
-                    href="tel:+914221234567"
+                    href="tel:+914222345678"
                     data-ocid="contact.phone_link"
                     className="text-secondary text-sm font-semibold hover:underline"
                   >
-                    +91-422-123-4567
+                    +91-422-2345678
                   </a>
                 ),
               },
@@ -383,8 +443,8 @@ export default function ContactPage() {
                   Message Sent!
                 </h3>
                 <p className="text-muted-foreground max-w-sm">
-                  Thank you for reaching out. Our team will respond to your
-                  inquiry within 24 hours.
+                  Thank you for reaching out to Rathinam Group of Institutions.
+                  Our team will respond within 24 hours.
                 </p>
                 <button
                   type="button"
@@ -624,14 +684,14 @@ export default function ContactPage() {
       <Section
         className="section-alt"
         title="Find Us on the Map"
-        subtitle="Rathinam College of Arts & Science, Eachanari, Coimbatore – 641 021"
+        subtitle="Rathinam Group of Institutions, Eachanari, Coimbatore – 641021, Tamil Nadu"
         centered
         data-ocid="contact.map_section"
       >
         <div className="rounded-2xl overflow-hidden shadow-elevated border border-border">
           <iframe
-            title="Rathinam College Location – Coimbatore"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.2!2d76.9366!3d10.9754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85e6e3b8d5c2f%3A0x0!2sRathinam%20College%20of%20Arts%20and%20Science%2C%20Eachanari%2C%20Coimbatore%2C%20Tamil%20Nadu%20641021!5e0!3m2!1sen!2sin!4v1700000000000"
+            title="Rathinam Group of Institutions Location – Coimbatore"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.2!2d76.9366!3d10.9754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85e6e3b8d5c2f%3A0x0!2sRathinam%20Group%20of%20Institutions%2C%20Eachanari%2C%20Coimbatore%2C%20Tamil%20Nadu%20641021!5e0!3m2!1sen!2sin!4v1700000000000"
             width="100%"
             height="400"
             style={{ border: 0 }}
@@ -642,9 +702,9 @@ export default function ContactPage() {
         </div>
         <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground text-sm">
           <MapPin className="w-4 h-4 text-primary" />
-          <span>Eachanari, Coimbatore – 641 021, Tamil Nadu, India</span>
+          <span>Eachanari, Coimbatore – 641021, Tamil Nadu, India</span>
           <a
-            href="https://maps.google.com/?q=Rathinam+College+Eachanari+Coimbatore"
+            href="https://maps.google.com/?q=Rathinam+Group+of+Institutions+Eachanari+Coimbatore"
             target="_blank"
             rel="noreferrer"
             data-ocid="contact.maps_external_link"
@@ -712,7 +772,8 @@ export default function ContactPage() {
           </h2>
           <p className="text-primary-foreground/80 mb-8 max-w-lg mx-auto">
             Subscribe to our newsletter for the latest news, events, and
-            placement updates from Rathinam College.
+            placement updates from Rathinam Group of Institutions, Eachanari,
+            Coimbatore.
           </p>
 
           {newsletterDone ? (
@@ -731,7 +792,11 @@ export default function ContactPage() {
               data-ocid="contact.newsletter_form"
               className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
             >
+              <label htmlFor="newsletter-email" className="sr-only">
+                Email address
+              </label>
               <input
+                id="newsletter-email"
                 type="email"
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}

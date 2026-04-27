@@ -1,3 +1,4 @@
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -13,14 +14,17 @@ import {
   Users,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useRef } from "react";
+import type * as THREE from "three";
 import { Badge } from "../components/CollegeBadge";
 import { Section } from "../components/Section";
 
 const STATS = [
   { value: "50+", label: "Partner Universities", icon: "🏛️" },
-  { value: "25", label: "Countries", icon: "🌍" },
+  { value: "15", label: "Countries", icon: "🌍" },
   { value: "500+", label: "Students on Exchange", icon: "✈️" },
   { value: "100+", label: "Joint Research Projects", icon: "🔬" },
+  { value: "80+", label: "International Internships", icon: "💼" },
 ];
 
 const PARTNERS = [
@@ -264,7 +268,7 @@ const BENEFITS = [
   {
     icon: "🌏",
     title: "Global Exposure",
-    desc: "Study on 4 continents across 25+ countries",
+    desc: "Study on 4 continents across 15+ countries",
   },
   {
     icon: "🎓",
@@ -300,10 +304,91 @@ const typeColorMap: Record<string, string> = {
   MoU: "bg-muted text-muted-foreground border-border",
 };
 
+// ── 3D Globe Wireframe ──────────────────────────────────────────────────────
+function GlobeWireframe() {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((_state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.35;
+      groupRef.current.rotation.x += delta * 0.08;
+    }
+  });
+
+  const latLines = Array.from({ length: 7 }, (_, i) => i);
+  const lonLines = Array.from({ length: 10 }, (_, i) => i);
+  const radius = 1.4;
+
+  return (
+    <group ref={groupRef}>
+      {/* Latitude rings */}
+      {latLines.map((i) => {
+        const phi = (i / 6) * Math.PI;
+        const r = radius * Math.sin(phi);
+        const y = radius * Math.cos(phi);
+        const points: [number, number, number][] = Array.from(
+          { length: 33 },
+          (_, j) => {
+            const theta = (j / 32) * Math.PI * 2;
+            return [r * Math.cos(theta), y, r * Math.sin(theta)];
+          },
+        );
+        return (
+          <line key={`lat-${i}`}>
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                args={[new Float32Array(points.flat()), 3]}
+              />
+            </bufferGeometry>
+            <lineBasicMaterial color="#22d3ee" transparent opacity={0.55} />
+          </line>
+        );
+      })}
+      {/* Longitude rings */}
+      {lonLines.map((i) => {
+        const theta = (i / 10) * Math.PI;
+        const points: [number, number, number][] = Array.from(
+          { length: 33 },
+          (_, j) => {
+            const phi = (j / 32) * Math.PI * 2;
+            return [
+              radius * Math.sin(phi) * Math.cos(theta),
+              radius * Math.cos(phi),
+              radius * Math.sin(phi) * Math.sin(theta),
+            ];
+          },
+        );
+        return (
+          <line key={`lon-${i}`}>
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                args={[new Float32Array(points.flat()), 3]}
+              />
+            </bufferGeometry>
+            <lineBasicMaterial color="#a78bfa" transparent opacity={0.45} />
+          </line>
+        );
+      })}
+      {/* Outer glow sphere */}
+      <mesh>
+        <sphereGeometry args={[radius * 1.01, 16, 16]} />
+        <meshBasicMaterial
+          color="#0ea5e9"
+          transparent
+          opacity={0.04}
+          wireframe={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 export default function InternationalPage() {
   return (
     <div data-ocid="international.page">
-      {/* Hero */}
+      {/* Hero — with 3D globe wireframe decoration */}
       <section
         className="relative overflow-hidden min-h-[560px] flex items-center"
         data-ocid="international.hero.section"
@@ -314,6 +399,19 @@ export default function InternationalPage() {
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.22_0.19_155/0.92)] via-[oklch(0.26_0.17_165/0.78)] to-[oklch(0.3_0.14_200/0.45)]" />
+
+        {/* 3D Globe decoration — top right */}
+        <div
+          className="absolute right-4 top-8 md:right-16 md:top-1/2 md:-translate-y-1/2 pointer-events-none opacity-80"
+          style={{ width: 200, height: 200 }}
+          aria-hidden="true"
+        >
+          <Canvas camera={{ position: [0, 0, 3.5], fov: 45 }}>
+            <ambientLight intensity={0.6} />
+            <GlobeWireframe />
+          </Canvas>
+        </div>
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -328,8 +426,9 @@ export default function InternationalPage() {
               <span className="text-gradient-green">World-Class Education</span>
             </h1>
             <p className="text-primary-foreground/85 text-xl max-w-2xl leading-relaxed mb-8">
-              Partner with 50+ universities across 25 countries. Study abroad,
-              earn dual degrees, and build a career without borders.
+              Partner with 50+ universities across 15 Countries. Study abroad,
+              earn dual degrees, and build a career without borders from
+              Rathinam Group of Institutions.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -351,13 +450,13 @@ export default function InternationalPage() {
         </div>
       </section>
 
-      {/* Stats Bar */}
+      {/* Stats Bar — including 80+ International Internships */}
       <section
         className="bg-card border-b border-border py-0 shadow-card"
         data-ocid="international.stats.section"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border">
+          <div className="grid grid-cols-2 md:grid-cols-5 divide-x divide-border">
             {STATS.map((s, i) => (
               <motion.div
                 key={s.label}
@@ -383,7 +482,7 @@ export default function InternationalPage() {
       {/* Partner Universities */}
       <Section
         title="Our Global Partner Universities"
-        subtitle="Collaborations with the world's finest academic institutions across 25 countries"
+        subtitle="50+ University collaborations across 15 Countries — Rathinam Group of Institutions"
         centered
         data-ocid="international.partners.section"
       >
@@ -416,7 +515,7 @@ export default function InternationalPage() {
         <div className="mt-10 text-center">
           <p className="text-muted-foreground text-sm">
             + More partnerships being added every year. Full list available at
-            the International Office.
+            the International Office, Rathinam Group of Institutions, Eachanari.
           </p>
         </div>
       </Section>
@@ -633,9 +732,9 @@ export default function InternationalPage() {
                 Ready to Go Global?
               </h2>
               <p className="text-muted-foreground text-base leading-relaxed mb-6">
-                Our dedicated International Programs team is here to guide you
-                through every step — from choosing the right program to visa
-                documentation and cultural preparation.
+                Our dedicated International Programs team at Rathinam Group of
+                Institutions is here to guide you through every step — from
+                choosing the right program to visa documentation.
               </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg">
@@ -656,11 +755,11 @@ export default function InternationalPage() {
                   <div>
                     <div className="text-xs text-muted-foreground">Phone</div>
                     <a
-                      href="tel:+914221234568"
+                      href="tel:+914222345678"
                       className="text-sm font-semibold text-foreground hover:text-accent transition-smooth"
                       data-ocid="international.contact.phone.link"
                     >
-                      +91-422-123-4568
+                      +91-422-2345678
                     </a>
                   </div>
                 </div>
@@ -671,7 +770,7 @@ export default function InternationalPage() {
                       Location
                     </div>
                     <div className="text-sm font-semibold text-foreground">
-                      International Office, Admin Block, Ground Floor
+                      International Office, Admin Block, Eachanari, Coimbatore
                     </div>
                   </div>
                 </div>
@@ -686,7 +785,7 @@ export default function InternationalPage() {
                 Next semester exchange deadline:{" "}
                 <strong className="text-secondary">July 15, 2025</strong>
               </p>
-              <div className="grid grid-cols-2 gap-3 mb-6 text-center">
+              <div className="grid grid-cols-2 gap-3 mb-4 text-center">
                 <div className="bg-primary-foreground/10 rounded-lg p-3">
                   <div className="font-display text-2xl font-bold text-secondary">
                     50+
@@ -697,10 +796,18 @@ export default function InternationalPage() {
                 </div>
                 <div className="bg-primary-foreground/10 rounded-lg p-3">
                   <div className="font-display text-2xl font-bold text-secondary">
-                    25
+                    15
                   </div>
                   <div className="text-primary-foreground/70 text-xs">
                     Countries
+                  </div>
+                </div>
+                <div className="bg-primary-foreground/10 rounded-lg p-3 col-span-2">
+                  <div className="font-display text-2xl font-bold text-secondary">
+                    80+
+                  </div>
+                  <div className="text-primary-foreground/70 text-xs">
+                    International Internships
                   </div>
                 </div>
               </div>

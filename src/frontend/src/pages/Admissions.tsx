@@ -31,6 +31,9 @@ import {
 import { motion } from "motion/react";
 import { useState } from "react";
 
+// suppress unused import warning
+void Button;
+
 // ─── Static Data ──────────────────────────────────────────────────────────────
 
 const admissionSteps = [
@@ -110,6 +113,14 @@ const programs = [
     seats: 10,
   },
 ];
+
+type BadgeVariant = "primary" | "accent" | "secondary";
+
+function getBadgeVariant(type: string): BadgeVariant {
+  if (type === "UG") return "primary";
+  if (type === "PG") return "accent";
+  return "secondary";
+}
 
 const brochures = [
   {
@@ -246,11 +257,11 @@ const faqs = [
   },
   {
     q: "Are hostel facilities available for outstation students?",
-    a: "Yes — separate hostels for boys and girls are available on campus, offering furnished rooms, nutritious meals, Wi-Fi, gym access, and 24/7 security. Annual hostel fee is approximately ₹60,000–₹65,000.",
+    a: "Yes — separate hostels for boys and girls are available on campus at Eachanari, Coimbatore, offering furnished rooms, nutritious meals, Wi-Fi, gym access, and 24/7 security. Annual hostel fee is approximately ₹60,000–₹65,000.",
   },
   {
     q: "What scholarships are available?",
-    a: "Rathinam College offers Merit Scholarships (25%–100% fee waiver), Sports Scholarships for state/national athletes, Tamil Nadu Government SC/ST scholarships, and education loan facilitation through SBI, Canara Bank, and Indian Bank.",
+    a: "Rathinam Group of Institutions offers Merit Scholarships (25%–100% fee waiver), Sports Scholarships for state/national athletes, Tamil Nadu Government SC/ST scholarships, and education loan facilitation through SBI, Canara Bank, and Indian Bank.",
   },
   {
     q: "Can I transfer my admission from another college?",
@@ -267,7 +278,7 @@ function StepCard({
   desc,
   index,
 }: {
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   step: string;
   title: string;
   desc: string;
@@ -580,7 +591,7 @@ export default function AdmissionsPage() {
       >
         <img
           src="https://picsum.photos/seed/rathinam-admissions/1600/600"
-          alt="Admissions at Rathinam College"
+          alt="Admissions at Rathinam Group of Institutions"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/88 to-primary/40" />
@@ -603,9 +614,8 @@ export default function AdmissionsPage() {
               <span className="text-gradient-orange">Excellence</span> Begins
             </h1>
             <p className="text-primary-foreground/80 text-lg mb-8 leading-relaxed max-w-xl">
-              Join Rathinam College — where world-class education meets
-              industry-ready skills. Applications are open for all UG, PG, and
-              MBA programs.
+              Join Rathinam Group of Institutions, Eachanari, Coimbatore — where
+              world-class education meets industry-ready skills.
             </p>
             <div className="flex flex-wrap gap-4">
               <a
@@ -666,7 +676,7 @@ export default function AdmissionsPage() {
       {/* ── Admission Steps ─────────────────────────────────────────────────── */}
       <Section
         title="Admission Process — 5 Simple Steps"
-        subtitle="Follow these steps to secure your seat at Rathinam College."
+        subtitle="Follow these steps to secure your seat at Rathinam Group of Institutions."
         centered
         className="bg-background"
         data-ocid="admissions.steps.section"
@@ -726,17 +736,7 @@ export default function AdmissionsPage() {
                     {p.name}
                   </td>
                   <td className="px-5 py-4 text-center">
-                    <Badge
-                      variant={
-                        p.type === "UG"
-                          ? "primary"
-                          : p.type === "PG"
-                            ? "accent"
-                            : "secondary"
-                      }
-                    >
-                      {p.type}
-                    </Badge>
+                    <Badge variant={getBadgeVariant(p.type)}>{p.type}</Badge>
                   </td>
                   <td className="px-5 py-4 text-center text-muted-foreground font-medium">
                     {p.duration}
@@ -772,6 +772,19 @@ export default function AdmissionsPage() {
         className="bg-background"
         data-ocid="admissions.brochures.section"
       >
+        {/* Prominent download all CTA */}
+        <div className="flex justify-center mb-8">
+          <a
+            href="https://drive.google.com/drive/folders/sample"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-ocid="admissions.brochures.download_all.primary_button"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-bold rounded-full shadow-elevated hover:scale-105 transition-smooth text-base"
+          >
+            <Download className="w-5 h-5" />
+            Download All Brochures (PDF Bundle)
+          </a>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {brochures.map((b, i) => (
             <motion.div
@@ -975,8 +988,8 @@ export default function AdmissionsPage() {
             </h2>
             <p className="text-muted-foreground mb-8 leading-relaxed text-sm">
               Fill out the inquiry form and our admissions counselor will
-              contact you within 24 hours to guide you through the process,
-              answer all your questions, and help you select the right program.
+              contact you within 24 hours to guide you through the process and
+              help you select the right program at our Eachanari campus.
             </p>
 
             <div className="space-y-3 mb-8">
@@ -988,7 +1001,7 @@ export default function AdmissionsPage() {
                 },
                 {
                   icon: GraduationCap,
-                  title: "NAAC A+ Accredited",
+                  title: "NAAC A++ Accredited",
                   desc: "Top-tier academic quality certified by national bodies.",
                 },
                 {
@@ -1022,10 +1035,10 @@ export default function AdmissionsPage() {
                 <p>
                   📞{" "}
                   <a
-                    href="tel:+914224253685"
+                    href="tel:+914222345678"
                     className="hover:text-primary transition-smooth font-medium"
                   >
-                    +91 422 425 3685
+                    +91-422-2345678
                   </a>
                 </p>
                 <p>
@@ -1037,6 +1050,7 @@ export default function AdmissionsPage() {
                     admissions@rathinam.in
                   </a>
                 </p>
+                <p>📍 Eachanari, Coimbatore – 641021, Tamil Nadu</p>
                 <p>🕐 Monday–Saturday: 9:00 AM – 5:00 PM</p>
               </div>
             </div>

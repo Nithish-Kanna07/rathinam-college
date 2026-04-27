@@ -1,3 +1,5 @@
+import { OrbitControls, Sphere, Stars } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -18,7 +20,8 @@ import {
   Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import type * as THREE from "three";
 import { Badge } from "../components/CollegeBadge";
 import { Section } from "../components/Section";
 import { useOverallStats, usePlacementStats } from "../hooks/useBackend";
@@ -29,10 +32,10 @@ const HERO_SLIDES = [
     id: 1,
     image: "/assets/generated/rathinam-campus-hero.dim_1400x600.jpg",
     badge: "🏆 Ranked #1 in Tamil Nadu for Placements 2024",
-    title: "Rathinam College",
-    subtitle: "of Arts & Science",
+    title: "Rathinam Group",
+    subtitle: "of Institutions",
     tagline: "Excellence in Education | Innovation | Industry Partnerships",
-    desc: "Igniting Careers. Shaping Leaders. Since 1994.\nApproved by AICTE · Affiliated to Anna University",
+    desc: "Eachanari, Coimbatore — Igniting Careers. Shaping Leaders. Since 1994.\nApproved by AICTE · Affiliated to Anna University",
   },
   {
     id: 2,
@@ -196,7 +199,7 @@ const TESTIMONIALS = [
     package: "15 LPA",
     batch: "B.Tech IT, 2022",
     quote:
-      "From day one, the faculty pushed us to think beyond textbooks. Real projects, real learning, real results. I owe my career to Rathinam.",
+      "From day one, the faculty pushed us to think beyond textbooks. Real projects, real learning, real results. I owe my career to Rathinam Group of Institutions.",
     avatar:
       "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=80&h=80&fit=crop&crop=face",
   },
@@ -209,7 +212,7 @@ const NEWS = [
     category: "Placements",
     title: "Record 42 LPA Placement: Rathinam Student Lands Google Offer",
     excerpt:
-      "Kavin Kumar from B.Tech CSE batch 2025 receives the highest-ever offer of ₹42 LPA from Google Bangalore, setting a new college record.",
+      "Kavin Kumar from B.Tech CSE batch 2025 receives the highest-ever offer of ₹42 LPA from Google Bangalore, setting a new record at Rathinam Group of Institutions.",
     image: "/assets/generated/placement-ceremony.dim_800x500.jpg",
     catColor: "text-secondary",
     catBg: "bg-secondary/15",
@@ -219,7 +222,7 @@ const NEWS = [
     category: "International",
     title: "MoU Signed with NTU Singapore for Student Exchange 2025-26",
     excerpt:
-      "Rathinam College expands its global footprint with a new academic partnership enabling 50 students to study at NTU Singapore annually.",
+      "Rathinam Group of Institutions expands its global footprint with a new academic partnership enabling 50 students to study at NTU Singapore annually.",
     image:
       "/assets/generated/international-collaboration-event.dim_1400x600.jpg",
     catColor: "text-accent",
@@ -242,9 +245,274 @@ const STAT_STRIP = [
   { value: "Est. 1994", label: "Founded" },
   { value: "15,000+", label: "Students" },
   { value: "500+", label: "Faculty" },
-  { value: "98%", label: "Placements" },
+  { value: "93.12%", label: "Placements" },
   { value: "50+", label: "Intl. Partners" },
 ];
+
+// ════════════════════════════════════════════════════════════════
+// ── 3D Hero Scene ─────────────────────────────────────────────────
+
+function FloatingShape({
+  position,
+  color,
+  speed,
+  shape,
+  scale = 1,
+}: {
+  position: [number, number, number];
+  color: string;
+  speed: number;
+  shape: "torusKnot" | "sphere" | "box" | "octahedron";
+  scale?: number;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const initialY = position[1];
+
+  useFrame(({ clock }) => {
+    if (!meshRef.current) return;
+    const t = clock.getElapsedTime();
+    meshRef.current.rotation.x = t * speed * 0.4;
+    meshRef.current.rotation.y = t * speed * 0.6;
+    meshRef.current.position.y = initialY + Math.sin(t * speed * 0.5) * 0.3;
+  });
+
+  const mat = (
+    <meshStandardMaterial
+      color={color}
+      roughness={0.3}
+      metalness={0.6}
+      transparent
+      opacity={0.85}
+    />
+  );
+
+  return (
+    <mesh ref={meshRef} position={position} scale={scale}>
+      {shape === "torusKnot" && (
+        <torusKnotGeometry args={[0.5, 0.18, 100, 16]} />
+      )}
+      {shape === "sphere" && <sphereGeometry args={[0.55, 32, 32]} />}
+      {shape === "box" && <boxGeometry args={[0.9, 0.9, 0.9]} />}
+      {shape === "octahedron" && <octahedronGeometry args={[0.65]} />}
+      {mat}
+    </mesh>
+  );
+}
+
+function HeroScene({ isMobile }: { isMobile: boolean }) {
+  return (
+    <>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1.4} color="#4f6ef7" />
+      <pointLight position={[-8, -5, 5]} intensity={1.0} color="#ff8c40" />
+      <pointLight position={[0, 8, -5]} intensity={0.8} color="#3ddc84" />
+
+      <Stars
+        radius={80}
+        depth={50}
+        count={isMobile ? 1500 : 3000}
+        factor={4}
+        saturation={0.5}
+        fade
+        speed={0.4}
+      />
+
+      {!isMobile && (
+        <>
+          <FloatingShape
+            position={[-5.5, 1.5, -3]}
+            color="#4f6ef7"
+            speed={0.5}
+            shape="torusKnot"
+            scale={1.1}
+          />
+          <FloatingShape
+            position={[5.0, -1.0, -2]}
+            color="#ff8c40"
+            speed={0.35}
+            shape="octahedron"
+            scale={1.3}
+          />
+          <FloatingShape
+            position={[3.5, 2.5, -4]}
+            color="#3ddc84"
+            speed={0.45}
+            shape="sphere"
+            scale={0.9}
+          />
+          <FloatingShape
+            position={[-4.0, -2.0, -3]}
+            color="#a855f7"
+            speed={0.55}
+            shape="box"
+            scale={0.8}
+          />
+          <FloatingShape
+            position={[0.5, 3.2, -5]}
+            color="#f7c948"
+            speed={0.3}
+            shape="octahedron"
+            scale={0.7}
+          />
+        </>
+      )}
+      {isMobile && (
+        <>
+          <FloatingShape
+            position={[-3.5, 1.0, -3]}
+            color="#4f6ef7"
+            speed={0.4}
+            shape="torusKnot"
+            scale={0.8}
+          />
+          <FloatingShape
+            position={[3.5, -0.5, -2]}
+            color="#ff8c40"
+            speed={0.3}
+            shape="octahedron"
+            scale={1.0}
+          />
+        </>
+      )}
+
+      {!isMobile && (
+        <OrbitControls
+          enableZoom={false}
+          enablePan={false}
+          autoRotate
+          autoRotateSpeed={0.4}
+          maxPolarAngle={Math.PI * 0.65}
+          minPolarAngle={Math.PI * 0.35}
+        />
+      )}
+    </>
+  );
+}
+
+// ── 3D Particle Ring for Stat Strip ──────────────────────────────
+function ParticleRing() {
+  const points = useRef<THREE.Points>(null);
+  const count = 400;
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const r = 3 + Math.random() * 1.5;
+    positions[i * 3] = Math.cos(angle) * r;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 0.6;
+    positions[i * 3 + 2] = Math.sin(angle) * r;
+  }
+
+  useFrame(({ clock }) => {
+    if (points.current) {
+      points.current.rotation.y = clock.getElapsedTime() * 0.15;
+    }
+  });
+
+  return (
+    <points ref={points}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial size={0.045} color="#ff8c40" transparent opacity={0.7} />
+    </points>
+  );
+}
+
+function StatStripScene() {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <pointLight position={[0, 3, 2]} intensity={1.2} color="#ff8c40" />
+      <ParticleRing />
+    </>
+  );
+}
+
+// ── 3D Globe for International Section ───────────────────────────
+function GlobeScene() {
+  const globeRef = useRef<THREE.Mesh>(null);
+  const wireRef = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    if (globeRef.current) globeRef.current.rotation.y = t * 0.25;
+    if (wireRef.current) wireRef.current.rotation.y = t * 0.18;
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[5, 5, 5]} intensity={1.5} color="#4f6ef7" />
+      <pointLight position={[-4, -3, 2]} intensity={0.8} color="#3ddc84" />
+      <Stars radius={40} depth={20} count={800} factor={3} fade speed={0.2} />
+
+      {/* Main globe */}
+      <mesh ref={globeRef}>
+        <sphereGeometry args={[1.3, 48, 48]} />
+        <meshStandardMaterial
+          color="#1a2f6e"
+          roughness={0.4}
+          metalness={0.5}
+          transparent
+          opacity={0.92}
+        />
+      </mesh>
+
+      {/* Wireframe overlay */}
+      <mesh ref={wireRef}>
+        <sphereGeometry args={[1.35, 18, 18]} />
+        <meshBasicMaterial
+          color="#4f6ef7"
+          wireframe
+          transparent
+          opacity={0.25}
+        />
+      </mesh>
+
+      {/* Glowing ring */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[1.7, 0.03, 8, 64]} />
+        <meshStandardMaterial
+          color="#ff8c40"
+          emissive="#ff8c40"
+          emissiveIntensity={0.8}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2.5, 0.5, 0]}>
+        <torusGeometry args={[1.55, 0.02, 8, 64]} />
+        <meshStandardMaterial
+          color="#3ddc84"
+          emissive="#3ddc84"
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+
+      {/* Orbiting dot */}
+      <OrbitDot />
+    </>
+  );
+}
+
+function OrbitDot() {
+  const ref = useRef<THREE.Mesh>(null);
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    if (ref.current) {
+      ref.current.position.x = Math.cos(t * 0.8) * 1.7;
+      ref.current.position.z = Math.sin(t * 0.8) * 1.7;
+      ref.current.position.y = Math.sin(t * 0.4) * 0.3;
+    }
+  });
+  return (
+    <Sphere ref={ref} args={[0.08, 12, 12]}>
+      <meshStandardMaterial
+        color="#f7c948"
+        emissive="#f7c948"
+        emissiveIntensity={1.2}
+      />
+    </Sphere>
+  );
+}
 
 // ════════════════════════════════════════════════════════════════
 export default function HomePage() {
@@ -255,6 +523,7 @@ export default function HomePage() {
   const [slide, setSlide] = useState(0);
   const [dir, setDir] = useState(1);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const goToSlide = useCallback((next: number, direction: number) => {
     setDir(direction);
@@ -290,12 +559,27 @@ export default function HomePage() {
 
   return (
     <div data-ocid="home.page">
-      {/* ── HERO CAROUSEL ─────────────────────────────────────────── */}
+      {/* ── HERO SECTION with 3D Canvas ─────────────────────────────── */}
       <section
         className="relative min-h-[92vh] flex flex-col overflow-hidden"
         data-ocid="home.hero.section"
       >
-        {/* Background */}
+        {/* 3D Canvas Background */}
+        <div className="absolute inset-0 bg-gradient-hero-full">
+          <Suspense
+            fallback={<div className="w-full h-full bg-gradient-hero-full" />}
+          >
+            <Canvas
+              camera={{ position: [0, 0, 7], fov: 60 }}
+              gl={{ antialias: true, alpha: false }}
+              style={{ background: "transparent" }}
+            >
+              <HeroScene isMobile={isMobile} />
+            </Canvas>
+          </Suspense>
+        </div>
+
+        {/* Slide background image overlay (blended on top of canvas) */}
         <AnimatePresence initial={false} custom={dir}>
           <motion.div
             key={current.id}
@@ -308,16 +592,22 @@ export default function HomePage() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.9 }}
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url('${current.image}')` }}
+            style={{
+              backgroundImage: `url('${current.image}')`,
+              mixBlendMode: "overlay",
+              opacity: 0.22,
+            }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-hero-full opacity-88" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/20 to-primary/60" />
+
+        {/* Gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/30 to-primary/70 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/60 via-transparent to-transparent pointer-events-none" />
 
         {/* Content */}
-        <div className="relative flex-1 flex items-center">
+        <div className="relative flex-1 flex items-center z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-20">
             <div className="max-w-3xl">
               <AnimatePresence mode="wait" custom={dir}>
@@ -330,16 +620,24 @@ export default function HomePage() {
                   exit="exit"
                   transition={{ duration: 0.55, ease: "easeOut" }}
                 >
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/20 border border-secondary/40 text-primary-foreground text-sm font-semibold mb-5 backdrop-blur-sm">
+                  <motion.span
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/30 border border-secondary/50 text-primary-foreground text-sm font-semibold mb-5 backdrop-blur-sm"
+                  >
                     {current.badge}
-                  </span>
+                  </motion.span>
 
-                  <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground leading-tight mb-1">
+                  <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground leading-tight mb-1 drop-shadow-lg">
                     {current.title}
                   </h1>
-                  <h2 className="font-display text-2xl md:text-3xl font-semibold text-secondary mb-4 tracking-wide">
+                  <h2 className="font-display text-2xl md:text-3xl font-semibold text-secondary mb-2 tracking-wide drop-shadow-md">
                     {current.subtitle}
                   </h2>
+                  <p className="text-primary-foreground/60 text-xs font-medium mb-3 tracking-wider uppercase">
+                    Rathinam Group of Institutions, Eachanari, Coimbatore
+                  </p>
                   <p className="text-primary-foreground/90 text-base md:text-lg font-medium mb-3 tracking-wide">
                     {current.tagline}
                   </p>
@@ -378,7 +676,7 @@ export default function HomePage() {
         </div>
 
         {/* Carousel Controls */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none z-10">
           <button
             type="button"
             onClick={prevSlide}
@@ -400,7 +698,7 @@ export default function HomePage() {
         </div>
 
         {/* Slide Dots */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {HERO_SLIDES.map((s, i) => (
             <button
               type="button"
@@ -414,7 +712,7 @@ export default function HomePage() {
         </div>
 
         {/* Hero Stat Cards */}
-        <div className="relative bottom-0 pb-0 overflow-hidden">
+        <div className="relative bottom-0 pb-0 overflow-hidden z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -425,13 +723,13 @@ export default function HomePage() {
               {[
                 {
                   icon: Award,
-                  value: `${stats?.placementRate ?? 98}%`,
+                  value: `${stats?.placementRate ?? 93.12}%`,
                   label: "Placements",
                   color: "text-secondary",
                 },
                 {
                   icon: TrendingUp,
-                  value: `${stats?.avgPackageLPA ?? 8.5} LPA`,
+                  value: `${stats?.avgPackageLPA ?? 3.25} LPA`,
                   label: "Avg Package",
                   color: "text-secondary",
                 },
@@ -470,12 +768,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STAT STRIP ──────────────────────────────────────────────── */}
+      {/* ── STAT STRIP with 3D Canvas ───────────────────────────────── */}
       <div
-        className="bg-secondary text-secondary-foreground py-3"
+        className="relative bg-secondary text-secondary-foreground py-3 overflow-hidden"
         data-ocid="home.stat_strip.section"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 3D animated background */}
+        <div className="absolute inset-0 opacity-30 pointer-events-none">
+          <Suspense fallback={null}>
+            <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
+              <StatStripScene />
+            </Canvas>
+          </Suspense>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
           <div className="flex flex-wrap items-center justify-center gap-0 divide-x divide-secondary-foreground/25">
             {STAT_STRIP.map((s, i) => (
               <div
@@ -510,7 +817,7 @@ export default function HomePage() {
 
       {/* ── HIGHLIGHTS ─────────────────────────────────────────────── */}
       <Section
-        title="Why Choose Rathinam?"
+        title="Why Choose Rathinam Group of Institutions?"
         subtitle="Four pillars that set us apart from every other college in Tamil Nadu"
         className="section-alt"
         centered
@@ -543,7 +850,7 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* ── FEATURED COURSES HORIZONTAL SCROLL ─────────────────────── */}
+      {/* ── FEATURED COURSES with staggered animation ───────────────── */}
       <Section
         title="Academic Programs"
         subtitle="Industry-aligned programs designed to launch high-impact careers"
@@ -557,10 +864,10 @@ export default function HomePage() {
           {COURSES.map((course, i) => (
             <motion.div
               key={course.id}
-              whileInView={{ opacity: 1, scale: 1 }}
-              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 50 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
+              transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
               data-ocid={`home.courses.item.${i + 1}`}
               className="snap-start flex-shrink-0 w-60 sm:w-72"
             >
@@ -629,8 +936,8 @@ export default function HomePage() {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Consistent placements at India's top companies and global brands.
               Average salary{" "}
-              <span className="text-secondary font-bold">8.5 LPA</span>, highest{" "}
-              <span className="text-secondary font-bold">42 LPA</span>.
+              <span className="text-secondary font-bold">3.25 LPA</span>,
+              highest <span className="text-secondary font-bold">58 LPA</span>.
             </p>
           </div>
 
@@ -639,7 +946,7 @@ export default function HomePage() {
             {[
               {
                 label: "Highest Package",
-                value: `${stats?.highestPackageLPA ?? 42} LPA`,
+                value: `${stats?.highestPackageLPA ?? 58} LPA`,
                 icon: "🚀",
                 sub: "Google, 2024",
                 color: "text-secondary",
@@ -662,10 +969,10 @@ export default function HomePage() {
                 border: "border-accent/30 bg-accent/5",
               },
               {
-                label: "Partner Companies",
-                value: `${stats?.partnerCompanies ?? 350}+`,
-                icon: "🏢",
-                sub: "Fortune 500 & startups",
+                label: "Placement Rate",
+                value: `${stats?.placementRate ?? 93.12}%`,
+                icon: "🏆",
+                sub: "Rathinam Group 2024",
                 color: "text-secondary",
                 border: "border-secondary/30 bg-secondary/5",
               },
@@ -695,7 +1002,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Company Logos Row */}
+          {/* Company cards with 3D hover effect */}
           <div className="bg-card border border-border rounded-2xl p-6 shadow-card mb-8">
             <p className="text-center text-muted-foreground text-sm font-semibold mb-5 uppercase tracking-wider">
               Our Students Work At
@@ -708,8 +1015,16 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 10 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.06 }}
+                  whileHover={{
+                    scale: 1.08,
+                    rotateX: 6,
+                    rotateY: 4,
+                    z: 20,
+                    boxShadow: "0 12px 30px rgba(0,0,0,0.18)",
+                  }}
+                  style={{ transformStyle: "preserve-3d", perspective: 800 }}
                   data-ocid={`home.company.item.${i + 1}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-muted/60 rounded-full border border-border hover:border-primary/30 hover:bg-primary/5 transition-smooth cursor-default"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-muted/60 rounded-xl border border-border hover:border-primary/40 hover:bg-primary/5 transition-smooth cursor-default"
                 >
                   <span className="font-display font-bold text-foreground text-sm">
                     {c.name}
@@ -726,7 +1041,14 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 10 }}
                   viewport={{ once: true }}
                   transition={{ delay: (i + TOP_COMPANIES.length) * 0.06 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-muted/60 rounded-full border border-border hover:border-secondary/30 hover:bg-secondary/5 transition-smooth cursor-default"
+                  whileHover={{
+                    scale: 1.08,
+                    rotateX: 6,
+                    rotateY: 4,
+                    z: 20,
+                  }}
+                  style={{ transformStyle: "preserve-3d", perspective: 800 }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-muted/60 rounded-xl border border-border hover:border-secondary/30 hover:bg-secondary/5 transition-smooth cursor-default"
                 >
                   <span className="font-display font-bold text-foreground text-sm">
                     {c.company}
@@ -754,7 +1076,7 @@ export default function HomePage() {
       {/* ── TESTIMONIALS ────────────────────────────────────────────── */}
       <Section
         title="What Our Students Say"
-        subtitle="Success stories from Rathinam alumni placed across India and the globe"
+        subtitle="Success stories from Rathinam Group of Institutions alumni placed across India and the globe"
         data-ocid="home.testimonials.section"
         centered
       >
@@ -809,7 +1131,7 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* ── INTERNATIONAL ────────────────────────────────────────────── */}
+      {/* ── INTERNATIONAL with 3D Globe ──────────────────────────────── */}
       <Section
         title="Global Collaborations"
         subtitle="Study, research, and intern at our international partner universities"
@@ -817,30 +1139,59 @@ export default function HomePage() {
         centered
         data-ocid="home.international.section"
       >
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {INT_PARTNERS.map((p, i) => (
-            <motion.div
-              key={p.name}
-              whileInView={{ opacity: 1, y: 0 }}
-              initial={{ opacity: 0, y: 20 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              data-ocid={`home.international.item.${i + 1}`}
-              className="bg-card border border-border rounded-xl p-5 text-center shadow-card hover:shadow-elevated hover:-translate-y-1 transition-smooth"
+        {/* 3D Globe + Partner Grid side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center mb-10">
+          {/* Globe Canvas */}
+          <motion.div
+            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.85 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="h-72 lg:h-80 rounded-2xl overflow-hidden border border-border shadow-elevated bg-primary/10"
+            data-ocid="home.globe.canvas"
+          >
+            <Suspense
+              fallback={
+                <div className="w-full h-full flex items-center justify-center">
+                  <Globe size={48} className="text-primary/30 animate-pulse" />
+                </div>
+              }
             >
-              <div className="text-3xl mb-2">{p.country.split(" ")[0]}</div>
-              <div className="font-display font-bold text-foreground text-sm">
-                {p.name}
-              </div>
-              <div className="text-muted-foreground text-xs mt-1">
-                {p.country.split(" ").slice(1).join(" ")}
-              </div>
-              <Badge variant="green" className="mt-2">
-                Partner University
-              </Badge>
-            </motion.div>
-          ))}
+              <Canvas camera={{ position: [0, 0, 4], fov: 55 }}>
+                <GlobeScene />
+              </Canvas>
+            </Suspense>
+          </motion.div>
+
+          {/* Partner cards */}
+          <div className="grid grid-cols-2 gap-4">
+            {INT_PARTNERS.map((p, i) => (
+              <motion.div
+                key={p.name}
+                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ scale: 1.04, rotateX: 4, rotateY: 3 }}
+                style={{ transformStyle: "preserve-3d", perspective: 600 }}
+                data-ocid={`home.international.item.${i + 1}`}
+                className="bg-card border border-border rounded-xl p-5 text-center shadow-card hover:shadow-elevated transition-smooth"
+              >
+                <div className="text-3xl mb-2">{p.country.split(" ")[0]}</div>
+                <div className="font-display font-bold text-foreground text-sm">
+                  {p.name}
+                </div>
+                <div className="text-muted-foreground text-xs mt-1">
+                  {p.country.split(" ").slice(1).join(" ")}
+                </div>
+                <Badge variant="green" className="mt-2">
+                  Partner University
+                </Badge>
+              </motion.div>
+            ))}
+          </div>
         </div>
+
         <div className="text-center">
           <Link
             to="/international"
@@ -864,9 +1215,9 @@ export default function HomePage() {
                 Facilities That Inspire Excellence
               </h2>
               <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-                Over 100 acres of lush campus with state-of-the-art labs, smart
-                classrooms, innovation hubs, sports facilities, and modern
-                hostels for a complete campus experience.
+                Over 100 acres of lush campus in Eachanari, Coimbatore with
+                state-of-the-art labs, smart classrooms, innovation hubs, sports
+                facilities, and modern hostels for a complete campus experience.
               </p>
               <ul className="space-y-3 mb-8">
                 {[
@@ -922,7 +1273,7 @@ export default function HomePage() {
       {/* ── NEWS & EVENTS ────────────────────────────────────────────── */}
       <Section
         title="News & Events"
-        subtitle="Stay updated with the latest happenings at Rathinam College"
+        subtitle="Stay updated with the latest happenings at Rathinam Group of Institutions"
         className="section-alt"
         data-ocid="home.news.section"
         centered
@@ -995,10 +1346,19 @@ export default function HomePage() {
           >
             Your Dream Career Starts Here
           </motion.h2>
-          <p className="text-primary-foreground/80 text-lg mb-8">
+          <motion.p
+            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 15 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-primary-foreground/80 text-lg mb-3"
+          >
             Join 2,800+ students who landed placements at top companies with
             packages up to{" "}
             <span className="text-secondary font-bold">42 LPA</span>
+          </motion.p>
+          <p className="text-primary-foreground/60 text-sm mb-8">
+            Rathinam Group of Institutions, Eachanari, Coimbatore
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
