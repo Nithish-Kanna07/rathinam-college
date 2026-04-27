@@ -1,0 +1,23 @@
+{
+  "overview": "A vibrant, full-featured university website for Rathinam College — showcasing admissions, courses, placement statistics with salary packages, campus facilities, and international collaborations. Designed to attract and inform prospective students, parents, and recruiters.",
+  "features": [
+    "Hero banner with campus image carousel and key stats",
+    "About & College History with timeline and leadership profiles",
+    "Admissions section with downloadable brochures and FAQ",
+    "Courses catalog with filters by department and program type",
+    "Placements dashboard showing LPA packages, top recruiters, and alumni stories",
+    "Campus facilities gallery (labs, classrooms, library, sports, hostels)",
+    "International collaborations with partner universities worldwide",
+    "Contact and inquiry form with backend data storage"
+  ],
+  "category": "education",
+  "tags": [
+    "college",
+    "university",
+    "education",
+    "admissions",
+    "placements",
+    "campus"
+  ],
+  "last_updated": "2026-04-27T10:39:33.820Z"
+}

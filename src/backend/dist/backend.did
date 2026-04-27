@@ -1,0 +1,38 @@
+type Timestamp = int;
+type PlacementRecord = 
+ record {
+   avgLPA: float64;
+   courseId: text;
+   courseName: text;
+   highestLPA: float64;
+   placementRate: nat;
+   topCompanies: vec text;
+   year: nat;
+ };
+type OverallStats = 
+ record {
+   avgSalary: float64;
+   companiesCount: nat;
+   highestPackage: float64;
+   totalPlacements: nat;
+ };
+type InquiryId = nat;
+type ContactInquiry = 
+ record {
+   courseInterest: text;
+   email: text;
+   id: InquiryId;
+   message: text;
+   name: text;
+   phone: text;
+   timestamp: Timestamp;
+ };
+service : {
+  getContactInquiries: () -> (vec ContactInquiry) query;
+  getOverallStats: () -> (OverallStats) query;
+  getPlacementStats: () -> (vec PlacementRecord) query;
+  submitContactInquiry: (name: text, email: text, phone: text,
+   courseInterest: text, message: text) -> ();
+  submitCourseInquiry: (name: text, email: text, phone: text, courseId: 
+   text, message: text) -> ();
+}
